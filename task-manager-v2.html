@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Manager v2</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="task-manager-v2.css">
+<body>
+  <header class="bg-white border-b border-gray-200">
+    <div class="container mx-auto px-4 py-3">
+      <div class="flex items-center gap-4">
+        <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z"/>
+          <path d="M11 6h2v8h-2zm0 10h2v2h-2z"/>
+        </svg>
+        <h1 class="text-xl font-semibold text-gray-800">Task Manager v2</h1>
+      </div>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 py-6" aria-label="Task Manager">
+    <div class="max-w-2xl mx-auto">
+      <form id="task-form" aria-label="Add new task" class="mb-6">
+        <label for="task-input" class="visually-hidden">New Task</label>
+        <div class="flex gap-2">
+          <input 
+            type="text" 
+            id="task-input" 
+            name="task" 
+            placeholder="Add a new task..." 
+            required 
+            aria-required="true"
+            class="flex-1 px-4 py-2 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          >
+          <button 
+            type="submit" 
+            aria-label="Add task"
+            class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-300"
+          >
+            Add
+          </button>
+        </div>
+      </form>
+      <ul id="task-list" aria-live="polite" class="space-y-2"></ul>
+    </div>
+  </main>
+  <script src="task-manager-v2.js"></script>
+</body>
+</html>
