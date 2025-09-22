@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/dorian.postevca/OneDrive - AMDARIS GROUP LIMITED/AI projects/Claude Code/TestVScode_1/Claude Code BMAD/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
