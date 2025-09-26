@@ -59,29 +59,47 @@ export function generateTaskId(): string {
 export function convertSQLiteRow(row: any): any {
   if (!row) return row;
 
-  const converted = { ...row };
+  const converted: any = {};
+
+  // Convert snake_case to camelCase and handle data types
+  converted.id = row.id;
+  converted.title = row.title;
+  converted.description = row.description;
 
   // Convert datetime strings to Date objects
-  if (converted.created_at && typeof converted.created_at === 'string') {
-    converted.created_at = new Date(converted.created_at);
-  }
-  if (converted.completed_at && typeof converted.completed_at === 'string') {
-    converted.completed_at = new Date(converted.completed_at);
+  if (row.created_at && typeof row.created_at === 'string') {
+    converted.createdAt = new Date(row.created_at);
+  } else {
+    converted.createdAt = row.created_at;
   }
 
+  if (row.completed_at && typeof row.completed_at === 'string') {
+    converted.completedAt = new Date(row.completed_at);
+  } else {
+    converted.completedAt = row.completed_at;
+  }
+
+  // Convert estimated_minutes to camelCase
+  converted.estimatedMinutes = row.estimated_minutes;
+  converted.actualMinutes = row.actual_minutes;
+
   // Convert SQLite integers to booleans
-  if (typeof converted.is_completed === 'number') {
-    converted.is_completed = converted.is_completed === 1;
+  if (typeof row.is_completed === 'number') {
+    converted.isCompleted = row.is_completed === 1;
+  } else {
+    converted.isCompleted = Boolean(row.is_completed);
   }
 
   // Parse JSON tags array
-  if (converted.tags && typeof converted.tags === 'string') {
+  if (row.tags && typeof row.tags === 'string') {
     try {
-      converted.tags = JSON.parse(converted.tags);
+      converted.tags = JSON.parse(row.tags);
     } catch (error) {
-      logger.warn('Failed to parse tags JSON', { tags: converted.tags, error });
+      logger.warn('Failed to parse tags JSON', { tags: row.tags, error });
       converted.tags = [];
     }
+  } else {
+    converted.tags = row.tags || [];
   }
 
   return converted;
@@ -101,24 +119,43 @@ export function convertSQLiteRow(row: any): any {
 export function convertToSQLiteFormat(data: any): any {
   if (!data) return data;
 
-  const converted = { ...data };
+  const converted: any = {};
+
+  // Map camelCase to snake_case and handle data types
+  if (data.id !== undefined) converted.id = data.id;
+  if (data.title !== undefined) converted.title = data.title;
+  if (data.description !== undefined) converted.description = data.description;
 
   // Convert Date objects to ISO strings
-  if (converted.created_at instanceof Date) {
-    converted.created_at = converted.created_at.toISOString();
-  }
-  if (converted.completed_at instanceof Date) {
-    converted.completed_at = converted.completed_at.toISOString();
+  if (data.createdAt instanceof Date) {
+    converted.created_at = data.createdAt.toISOString();
+  } else if (data.created_at instanceof Date) {
+    converted.created_at = data.created_at.toISOString();
   }
 
+  if (data.completedAt instanceof Date) {
+    converted.completed_at = data.completedAt.toISOString();
+  } else if (data.completed_at instanceof Date) {
+    converted.completed_at = data.completed_at.toISOString();
+  }
+
+  // Convert camelCase time fields to snake_case
+  if (data.estimatedMinutes !== undefined) converted.estimated_minutes = data.estimatedMinutes;
+  if (data.estimated_minutes !== undefined) converted.estimated_minutes = data.estimated_minutes;
+
+  if (data.actualMinutes !== undefined) converted.actual_minutes = data.actualMinutes;
+  if (data.actual_minutes !== undefined) converted.actual_minutes = data.actual_minutes;
+
   // Convert booleans to integers
-  if (typeof converted.is_completed === 'boolean') {
-    converted.is_completed = converted.is_completed ? 1 : 0;
+  if (typeof data.isCompleted === 'boolean') {
+    converted.is_completed = data.isCompleted ? 1 : 0;
+  } else if (typeof data.is_completed === 'boolean') {
+    converted.is_completed = data.is_completed ? 1 : 0;
   }
 
   // Convert tags array to JSON string
-  if (Array.isArray(converted.tags)) {
-    converted.tags = JSON.stringify(converted.tags);
+  if (Array.isArray(data.tags)) {
+    converted.tags = JSON.stringify(data.tags);
   }
 
   return converted;

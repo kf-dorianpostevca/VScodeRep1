@@ -438,8 +438,8 @@ export class SQLiteTaskRepository implements ITaskRepository {
         const statsStmt = this.db.prepare(`
           SELECT
             COUNT(*) as total,
-            SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) as completed,
-            SUM(CASE WHEN is_completed = 0 THEN 1 ELSE 0 END) as pending
+            COALESCE(SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END), 0) as completed,
+            COALESCE(SUM(CASE WHEN is_completed = 0 THEN 1 ELSE 0 END), 0) as pending
           FROM tasks
         `);
 
