@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Coverage
+coverage/
+
+# Generated files
+*.d.ts
+
+# Config files (they have their own overrides in .eslintrc.js)
+# *.config.js
+# jest.config.js
+
+# Logs
+*.log

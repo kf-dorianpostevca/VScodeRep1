@@ -1,0 +1,8 @@
+#!/usr/bin/env node
+
+/**
+ * CLI binary entry point
+ * Executable script for the todo command
+ */
+
+require('../dist/index.js');
