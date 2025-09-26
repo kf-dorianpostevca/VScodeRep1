@@ -271,16 +271,16 @@ describe('Database Utilities', () => {
 
       const converted = convertSQLiteRow(sqliteRow);
 
-      expect(converted.created_at).toBeInstanceOf(Date);
-      expect(converted.is_completed).toBe(false);
+      expect(converted.createdAt).toBeInstanceOf(Date);
+      expect(converted.isCompleted).toBe(false);
       expect(converted.tags).toEqual(['tag1', 'tag2']);
     });
 
     it('should convert JavaScript data to SQLite format', () => {
       const jsData = {
         title: 'Test task',
-        created_at: new Date('2025-09-26T10:00:00.000Z'),
-        is_completed: true,
+        createdAt: new Date('2025-09-26T10:00:00.000Z'),
+        isCompleted: true,
         tags: ['tag1', 'tag2']
       };
 

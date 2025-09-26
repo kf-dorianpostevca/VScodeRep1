@@ -68,17 +68,26 @@ export class SQLiteTaskRepository implements ITaskRepository {
 
       this.updateStmt = this.db.prepare(`
         UPDATE tasks SET
-          title = COALESCE(@title, title),
-          description = COALESCE(@description, description),
-          estimated_minutes = COALESCE(@estimated_minutes, estimated_minutes),
-          is_completed = COALESCE(@is_completed, is_completed),
-          tags = COALESCE(@tags, tags)
+          title = CASE WHEN @title IS NOT NULL THEN @title ELSE title END,
+          description = CASE WHEN @description IS NOT NULL THEN @description ELSE description END,
+          estimated_minutes = CASE WHEN @estimated_minutes IS NOT NULL THEN @estimated_minutes ELSE estimated_minutes END,
+          is_completed = CASE WHEN @is_completed IS NOT NULL THEN @is_completed ELSE is_completed END,
+          tags = CASE WHEN @tags IS NOT NULL THEN @tags ELSE tags END
         WHERE id = @id
         RETURNING *
       `);
 
       this.markCompleteStmt = this.db.prepare(`
-        UPDATE tasks SET is_completed = 1 WHERE id = ? RETURNING *
+        UPDATE tasks SET
+          is_completed = 1,
+          completed_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'),
+          actual_minutes = CASE
+            WHEN actual_minutes IS NULL THEN
+              CAST((julianday('now') - julianday(created_at)) * 24 * 60 AS INTEGER)
+            ELSE actual_minutes
+          END
+        WHERE id = ?
+        RETURNING *
       `);
 
       this.markIncompleteStmt = this.db.prepare(`
@@ -211,7 +220,7 @@ export class SQLiteTaskRepository implements ITaskRepository {
           if (filter.tags && filter.tags.length > 0) {
             // Check if task has ALL specified tags
             for (const tag of filter.tags) {
-              conditions.push('json_extract(tags, "$") LIKE ?');
+              conditions.push('tags LIKE ?');
               params.push(`%"${tag}"%`);
             }
           }
@@ -254,14 +263,15 @@ export class SQLiteTaskRepository implements ITaskRepository {
     // Validate input data
     validateTaskData(updateData);
 
-    const sqliteData = convertToSQLiteFormat({
+    // Ensure all parameters are present (even if undefined/null)
+    const sqliteData = {
       id: updateData.id,
-      title: updateData.title,
-      description: updateData.description,
-      estimated_minutes: updateData.estimatedMinutes,
-      is_completed: updateData.isCompleted,
-      tags: updateData.tags
-    });
+      title: updateData.title || null,
+      description: updateData.description !== undefined ? updateData.description : null,
+      estimated_minutes: updateData.estimatedMinutes !== undefined ? updateData.estimatedMinutes : null,
+      is_completed: updateData.isCompleted !== undefined ? (updateData.isCompleted ? 1 : 0) : null,
+      tags: updateData.tags ? JSON.stringify(updateData.tags) : null
+    };
 
     return executeWithErrorHandling(
       this.db,

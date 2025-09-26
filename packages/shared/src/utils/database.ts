@@ -76,7 +76,7 @@ export function convertSQLiteRow(row: any): any {
   if (row.completed_at && typeof row.completed_at === 'string') {
     converted.completedAt = new Date(row.completed_at);
   } else {
-    converted.completedAt = row.completed_at;
+    converted.completedAt = row.completed_at || null;
   }
 
   // Convert estimated_minutes to camelCase
