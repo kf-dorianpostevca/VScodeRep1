@@ -69,7 +69,7 @@ export function AnalyticsPage(): JSX.Element {
                 className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors flex items-center"
                 title="Back to Tasks"
               >
-                <span className="text-xl">←</span>
+                <span className="text-xl">🏠</span>
                 <span className="ml-2 text-sm font-medium">Tasks</span>
               </Link>
               <h1 className="text-3xl font-bold text-gray-900 flex items-center">
