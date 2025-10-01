@@ -5,11 +5,22 @@
 
 import express from 'express';
 import cors from 'cors';
-import { createLogger } from '@intelligent-todo/shared';
+import { createLogger, createDatabaseConnection, SQLiteTaskRepository } from '@intelligent-todo/shared';
+import { errorHandler, notFoundHandler } from './middleware/errorHandler';
+import { performanceMonitor } from './middleware/performanceMonitor';
 
 const logger = createLogger('api');
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// Initialize shared task repository for analytics BEFORE importing routes
+export const taskRepository = new SQLiteTaskRepository(createDatabaseConnection());
+
+// Import routes AFTER repository initialization
+import { tasksRouter } from './routes/tasks';
+import { docsRouter } from './routes/docs';
+import { metricsRouter } from './routes/metrics';
+import analyticsRouter from './routes/analytics';
 
 /**
  * Initialize Express application
@@ -19,6 +30,9 @@ function initializeApp(): express.Application {
   app.use(cors());
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+
+  // Performance monitoring middleware
+  app.use(performanceMonitor);
 
   // Health check endpoint
   app.get('/health', (_req, res) => {
@@ -34,9 +48,32 @@ function initializeApp(): express.Application {
     res.json({
       message: '🎉 Welcome to intelligent-todo API!',
       version: '1.0.0',
-      endpoints: ['/health', '/api'],
+      endpoints: [
+        '/health',
+        '/api',
+        '/api/v1/tasks',
+        '/api/v1/tasks/:id',
+        '/api/v1/tasks/:id/complete',
+        '/api/v1/analytics/monthly',
+        '/api/v1/analytics/monthly/:year/:month'
+      ],
+      documentation: 'Visit /api/docs for full API documentation'
     });
   });
+
+  // API v1 routes
+  app.use('/api/v1/tasks', tasksRouter);
+  app.use('/api/v1/analytics', analyticsRouter);
+
+  // API documentation routes
+  app.use('/api/docs', docsRouter);
+
+  // Performance metrics routes
+  app.use('/api/metrics', metricsRouter);
+
+  // Error handling middleware (must be last)
+  app.use(notFoundHandler);
+  app.use(errorHandler);
 
   return app;
 }

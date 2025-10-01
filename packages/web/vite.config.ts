@@ -9,6 +9,7 @@ export default defineConfig({
     alias: {
       '@intelligent-todo/shared': path.resolve(__dirname, '../shared/src'),
     },
+    dedupe: ['react', 'react-dom']
   },
   server: {
     port: 3000,
@@ -17,5 +18,8 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime']
   }
 })
