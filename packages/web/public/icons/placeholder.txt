@@ -1,0 +1,21 @@
+# Placeholder Icon Files
+
+Since this is a development environment, actual PNG icon files are not created.
+In production, this directory would contain:
+
+- icon-16x16.png
+- icon-32x32.png
+- icon-48x48.png
+- icon-72x72.png
+- icon-96x96.png
+- icon-128x128.png
+- icon-144x144.png
+- icon-152x152.png
+- icon-192x192.png
+- icon-256x256.png
+- icon-384x384.png
+- icon-512x512.png
+
+These would be professionally designed icons with the target emoji (🎯)
+and brand colors (#3b82f6 blue background, white emoji) optimized for
+different platforms and display densities.

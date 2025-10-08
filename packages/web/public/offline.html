@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - Intelligent Todo</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .offline-container {
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .offline-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: pulse 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .retry-button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .retry-button:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .home-button {
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            padding: 15px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .home-button:hover {
+            border-color: white;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .features {
+            margin-top: 30px;
+            text-align: left;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .features h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .features ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .features li {
+            padding: 8px 0;
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .features li::before {
+            content: "✨ ";
+            margin-right: 8px;
+        }
+
+        .status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .status.online {
+            background: rgba(34, 197, 94, 0.9);
+        }
+
+        @media (max-width: 600px) {
+            .offline-container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .offline-icon {
+                font-size: 60px;
+            }
+
+            .retry-button, .home-button {
+                display: block;
+                width: 100%;
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="status" id="status">📡 Offline</div>
+
+    <div class="offline-container">
+        <div class="offline-icon">🎯</div>
+        <h1>You're Offline</h1>
+        <p>
+            Don't worry! Your productivity journey continues even offline.
+            You can still view your cached tasks and plan your next moves.
+        </p>
+
+        <button class="retry-button" onclick="retryConnection()">
+            🔄 Try Again
+        </button>
+
+        <button class="home-button" onclick="goHome()">
+            🏠 Go Home
+        </button>
+
+        <div class="features">
+            <h3>Available Offline:</h3>
+            <ul>
+                <li>View your recently cached tasks</li>
+                <li>Browse your productivity analytics</li>
+                <li>Plan new tasks (they'll sync when you're back online)</li>
+                <li>Review your celebration achievements</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Check online status
+        function updateStatus() {
+            const status = document.getElementById('status');
+            if (navigator.onLine) {
+                status.textContent = '🌐 Online';
+                status.className = 'status online';
+            } else {
+                status.textContent = '📡 Offline';
+                status.className = 'status';
+            }
+        }
+
+        // Retry connection
+        function retryConnection() {
+            if (navigator.onLine) {
+                // Try to go back to the app
+                window.location.href = '/';
+            } else {
+                // Show user they're still offline
+                alert('Still offline. Please check your internet connection.');
+            }
+        }
+
+        // Go to cached home page
+        function goHome() {
+            window.location.href = '/';
+        }
+
+        // Listen for online/offline events
+        window.addEventListener('online', () => {
+            updateStatus();
+            // Auto-retry when connection is restored
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 2000);
+        });
+
+        window.addEventListener('offline', updateStatus);
+
+        // Initial status check
+        updateStatus();
+
+        // Periodic connectivity check
+        setInterval(() => {
+            fetch('/ping', { method: 'HEAD', cache: 'no-cache' })
+                .then(() => {
+                    if (!navigator.onLine) {
+                        // Connection restored
+                        window.location.href = '/';
+                    }
+                })
+                .catch(() => {
+                    // Still offline, do nothing
+                });
+        }, 10000); // Check every 10 seconds
+    </script>
+</body>
+</html>

@@ -62,22 +62,22 @@ export function AnalyticsPage(): JSX.Element {
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-6xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
+          <div className="flex items-center">
+            <div className="flex-1">
               <Link
                 to="/"
-                className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors flex items-center"
+                className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors flex items-center inline-flex"
                 title="Back to Tasks"
               >
                 <span className="text-xl">🏠</span>
                 <span className="ml-2 text-sm font-medium">Tasks</span>
               </Link>
-              <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-                <span className="mr-3">📊</span>
-                Analytics Dashboard
-              </h1>
             </div>
-            <div className="flex items-center space-x-4">
+            <h1 className="text-3xl font-bold text-gray-900 flex items-center flex-shrink-0">
+              <span className="mr-3">📊</span>
+              Analytics Dashboard
+            </h1>
+            <div className="flex-1 flex justify-end">
               <button
                 onClick={() => loadAnalytics(selectedYear, selectedMonth)}
                 className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"

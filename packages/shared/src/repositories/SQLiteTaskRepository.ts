@@ -27,6 +27,7 @@ export class SQLiteTaskRepository implements ITaskRepository {
   private db: Database.Database;
   private createStmt!: Database.Statement;
   private findByIdStmt!: Database.Statement;
+  private findByShortIdStmt!: Database.Statement;
   private updateStmt!: Database.Statement;
   private markCompleteStmt!: Database.Statement;
   private markIncompleteStmt!: Database.Statement;
@@ -62,6 +63,10 @@ export class SQLiteTaskRepository implements ITaskRepository {
 
       this.findByIdStmt = this.db.prepare(`
         SELECT * FROM tasks WHERE id = ?
+      `);
+
+      this.findByShortIdStmt = this.db.prepare(`
+        SELECT * FROM tasks WHERE id LIKE ? || '%'
       `);
 
       // findAll uses dynamic queries based on filters, so no prepared statement needed
@@ -110,7 +115,7 @@ export class SQLiteTaskRepository implements ITaskRepository {
       logger.info('SQL statements prepared successfully');
     } catch (error) {
       logger.error('Failed to prepare SQL statements', { error });
-      throw new Error('Failed to initialize repository statements');
+      throw error;
     }
   }
 
@@ -198,12 +203,12 @@ export class SQLiteTaskRepository implements ITaskRepository {
           }
 
           if (filter.completedAfter) {
-            conditions.push('completed_at > ?');
+            conditions.push('completed_at >= ?');
             params.push(filter.completedAfter.toISOString());
           }
 
           if (filter.completedBefore) {
-            conditions.push('completed_at < ?');
+            conditions.push('completed_at <= ?');
             params.push(filter.completedBefore.toISOString());
           }
 
@@ -334,6 +339,89 @@ export class SQLiteTaskRepository implements ITaskRepository {
         return task;
       },
       'mark task incomplete'
+    );
+  }
+
+  /**
+   * Resolves a short ID (7 characters) to a full UUID
+   * @param shortId - Short task ID (7 characters)
+   * @returns Full UUID or null if not found or ambiguous
+   */
+  private resolveShortId(shortId: string): string | null {
+    // If it's already a full UUID, return as-is
+    if (shortId.length >= 36) {
+      return shortId;
+    }
+
+    const matches = this.findByShortIdStmt.all(shortId);
+
+    // Return null if no matches or multiple matches (ambiguous)
+    if (matches.length === 0) {
+      return null;
+    }
+
+    if (matches.length > 1) {
+      logger.warn('Ambiguous short ID - multiple matches found', {
+        shortId,
+        matches: matches.length
+      });
+      return null;
+    }
+
+    return (matches[0] as any).id;
+  }
+
+  /**
+   * {@inheritDoc ITaskRepository.completeTask}
+   */
+  public async completeTask(id: string): Promise<Task> {
+    logger.info('Completing task with idempotent behavior', { id });
+
+    return executeWithErrorHandling(
+      this.db,
+      () => {
+        // Resolve short ID to full UUID if needed
+        const fullId = this.resolveShortId(id);
+        if (!fullId) {
+          logger.error('Task not found for completion', { id });
+          throw new Error('Task not found');
+        }
+
+        // First, check if task exists and get current state
+        const existingTask = this.findByIdStmt.get(fullId);
+        if (!existingTask) {
+          logger.error('Task not found for completion', { id: fullId });
+          throw new Error('Task not found');
+        }
+
+        const currentTask = convertSQLiteRow(existingTask);
+
+        // If already completed, return the existing task (idempotent behavior)
+        if (currentTask.isCompleted) {
+          logger.info('Task already completed, returning existing task', {
+            id: currentTask.id,
+            title: currentTask.title
+          });
+          // Set actualMinutes to null to indicate this is idempotent completion
+          return { ...currentTask, actualMinutes: null };
+        }
+
+        // Complete the task using the existing prepared statement
+        const result = this.markCompleteStmt.get(fullId);
+        if (!result) {
+          logger.error('Failed to complete task', { id: fullId });
+          throw new Error('Failed to complete task');
+        }
+
+        const completedTask = convertSQLiteRow(result);
+        logger.info('Task completed successfully', {
+          id: completedTask.id,
+          title: completedTask.title,
+          actualMinutes: completedTask.actualMinutes
+        });
+        return completedTask;
+      },
+      'complete task'
     );
   }
 

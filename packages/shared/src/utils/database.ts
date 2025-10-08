@@ -247,6 +247,11 @@ export function executeWithErrorHandling<T>(
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error(`Database operation failed: ${operationName}`, { error: errorMessage });
 
+    // Preserve specific business logic errors
+    if (errorMessage.includes('Task not found')) {
+      throw new Error('Task not found');
+    }
+
     // Transform technical errors into user-friendly messages
     if (errorMessage.includes('UNIQUE constraint failed')) {
       throw new Error('This task already exists. Please try a different title.');

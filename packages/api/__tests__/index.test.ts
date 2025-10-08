@@ -28,7 +28,15 @@ describe('API Application', () => {
     expect(response.body).toMatchObject({
       message: '🎉 Welcome to intelligent-todo API!',
       version: '1.0.0',
-      endpoints: ['/health', '/api'],
+      endpoints: [
+        '/health',
+        '/api',
+        '/api/v1/tasks',
+        '/api/v1/tasks/:id',
+        '/api/v1/tasks/:id/complete',
+        '/api/v1/analytics/monthly',
+        '/api/v1/analytics/monthly/:year/:month'
+      ],
     });
   });
 

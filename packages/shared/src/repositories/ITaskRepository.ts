@@ -115,6 +115,20 @@ export interface ITaskRepository {
   markIncomplete(id: string): Promise<Task | null>;
 
   /**
+   * Completes a task with idempotent behavior - returns success for already completed tasks.
+   * Provides celebration-friendly completion handling with automatic timestamp and duration calculation.
+   * @param id - Task UUID
+   * @returns Promise resolving to the task (completed or already completed)
+   * @throws Error if task not found or database operation fails
+   * @example
+   * ```typescript
+   * const completedTask = await repository.completeTask('123e4567-e89b-12d3-a456-426614174000');
+   * console.log(`Task completed! Duration: ${completedTask.actualMinutes} minutes`);
+   * ```
+   */
+  completeTask(id: string): Promise<Task>;
+
+  /**
    * Permanently deletes a task from storage.
    * @param id - Task UUID
    * @returns Promise resolving to true if deleted, false if not found

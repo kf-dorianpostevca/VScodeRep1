@@ -2,7 +2,94 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Additional custom styles can be added here */
+/* Celebration-focused animations */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-success {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+.animate-pulse-success {
+  animation: pulse-success 0.6s ease-in-out;
+}
+
+/* Task completion celebration */
+.task-completed {
+  animation: pulse-success 0.6s ease-in-out;
+}
+
+/* Focus styles for accessibility */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Print styles for analytics */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .print-break {
+    page-break-before: always;
+  }
+
+  .print-avoid-break {
+    page-break-inside: avoid;
+  }
+
+  body {
+    font-size: 12pt;
+    line-height: 1.4;
+  }
+
+  .bg-gradient-to-r,
+  .bg-blue-50,
+  .bg-green-50,
+  .bg-gray-50 {
+    background: white !important;
+    border: 1px solid #d1d5db;
+  }
+
+  .text-blue-600,
+  .text-green-600,
+  .text-blue-700,
+  .text-green-700 {
+    color: #374151 !important;
+  }
+
+  .shadow-sm,
+  .shadow-lg {
+    box-shadow: none !important;
+    border: 1px solid #d1d5db !important;
+  }
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
